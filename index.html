@@ -22,7 +22,7 @@
 <!-- Navegadores dentro de apps (TikTok, Facebook, Instagram…) bloquean la descarga del APK sin avisar. -->
 <section id="dentro-app" class="dentro-app" hidden>
 <h2>Ábrelo en Chrome para descargar</h2>
-<p>Estás viendo esta página dentro de <b id="app-nombre">otra app</b>, y desde aquí Android no deja descargar YaLlegó.</p>
+<p id="aviso-texto">Estás viendo esta página dentro de <b id="app-nombre">otra app</b>, y desde aquí Android no deja descargar YaLlegó.</p>
 <a id="abrir-chrome" class="boton grande" href="#">Abrir en Chrome</a>
 <button id="copiar-enlace" class="boton linea" type="button">Copiar enlace</button>
 <p class="nota">¿No se abre? Toca <b>⋯</b> arriba a la derecha y elige <b>Abrir en el navegador</b>. O copia el enlace y pégalo en Chrome.</p>
@@ -74,31 +74,49 @@ YaLlegó
 <script>
 (function () {
   var ua = navigator.userAgent || '';
-  if (!/Android/i.test(ua)) return;
-  var apps = [[/musical_ly|Bytedance|TikTok|trill_/i, 'TikTok'], [/FBAN|FBAV|FB_IAB|FBIOS/i, 'Facebook'],
-    [/Instagram/i, 'Instagram'], [/Snapchat/i, 'Snapchat'], [/\bLine\//i, 'LINE'], [/; wv\)/, 'otra app']];
-  var nombre = null;
-  for (var i = 0; i < apps.length; i++) if (apps[i][0].test(ua)) { nombre = apps[i][1]; break; }
-  if (!nombre) return;
-
   var url = 'https://manoly24096.github.io/yapevoz-descargas/';
   var aviso = document.getElementById('dentro-app');
-  document.getElementById('app-nombre').textContent = nombre;
-  document.getElementById('abrir-chrome').href = 'intent://manoly24096.github.io/yapevoz-descargas/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
-  aviso.hidden = false;
+  var titulo = aviso.querySelector('h2');
+  var texto = document.getElementById('aviso-texto');
 
+  // Diagnóstico: abrir la web con #ua muestra cómo se identifica el navegador (para soporte).
+  if (location.hash === '#ua') {
+    var d = document.createElement('p'); d.className = 'nota'; d.style.wordBreak = 'break-all';
+    d.textContent = ua; document.querySelector('main').prepend(d);
+  }
+  if (!/Android/i.test(ua)) return;
+
+  document.getElementById('abrir-chrome').href = 'intent://manoly24096.github.io/yapevoz-descargas/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
   var copiar = document.getElementById('copiar-enlace');
   copiar.addEventListener('click', function () {
     var listo = function () { copiar.textContent = 'Enlace copiado ✓'; };
     if (navigator.clipboard) navigator.clipboard.writeText(url).then(listo, function () { prompt('Copia este enlace:', url); });
     else prompt('Copia este enlace:', url);
   });
+  function mostrar() { aviso.hidden = false; aviso.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 
-  // Los botones de descarga llevan al aviso en vez de fallar en silencio.
+  // 1) Navegador dentro de una app conocida: se avisa desde el inicio y Descargar lleva al aviso.
+  var apps = [[/musical_ly|Bytedance|TikTok|trill_|aweme/i, 'TikTok'], [/FBAN|FBAV|FB_IAB|FBIOS/i, 'Facebook'],
+    [/Instagram/i, 'Instagram'], [/Snapchat/i, 'Snapchat'], [/\bLine\//i, 'LINE'], [/; wv\)/, 'otra app']];
+  var nombre = null;
+  for (var i = 0; i < apps.length; i++) if (apps[i][0].test(ua)) { nombre = apps[i][1]; break; }
   var botones = document.querySelectorAll('a[href$="YaLlego.apk"]');
-  for (var j = 0; j < botones.length; j++) botones[j].addEventListener('click', function (e) {
-    e.preventDefault();
-    aviso.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (nombre) {
+    document.getElementById('app-nombre').textContent = nombre;
+    aviso.hidden = false;
+    for (var j = 0; j < botones.length; j++) botones[j].addEventListener('click', function (e) { e.preventDefault(); mostrar(); });
+    return;
+  }
+
+  // 2) Si no se reconoce el navegador: tras tocar Descargar, si a los 4 s la página sigue a la vista,
+  //    se ofrece la misma ayuda (en Chrome normal la descarga ya empezó y el aviso no estorba).
+  for (var k = 0; k < botones.length; k++) botones[k].addEventListener('click', function () {
+    setTimeout(function () {
+      if (document.visibilityState !== 'visible' || !aviso.hidden) return;
+      titulo.textContent = '¿No empezó la descarga?';
+      texto.innerHTML = 'Si estás dentro de TikTok, Facebook o Instagram, ábrelo en Chrome: desde esas apps Android no deja descargar YaLlegó. Si la descarga sí empezó, ignora este aviso.';
+      mostrar();
+    }, 4000);
   });
 })();
 </script>
