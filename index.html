@@ -19,6 +19,15 @@
 </head>
 <body><main>
 
+<!-- Navegadores dentro de apps (TikTok, Facebook, Instagram…) bloquean la descarga del APK sin avisar. -->
+<section id="dentro-app" class="dentro-app" hidden>
+<h2>Ábrelo en Chrome para descargar</h2>
+<p>Estás viendo esta página dentro de <b id="app-nombre">otra app</b>, y desde aquí Android no deja descargar YaLlegó.</p>
+<a id="abrir-chrome" class="boton grande" href="#">Abrir en Chrome</a>
+<button id="copiar-enlace" class="boton linea" type="button">Copiar enlace</button>
+<p class="nota">¿No se abre? Toca <b>⋯</b> arriba a la derecha y elige <b>Abrir en el navegador</b>. O copia el enlace y pégalo en Chrome.</p>
+</section>
+
 <p class="marca">
 <svg viewBox="14 14 80 80" aria-hidden="true"><rect x="14" y="14" width="80" height="80" rx="20" fill="#0F7B43"/><path fill="#fff" d="M37,37H62A9,9 0 0,1 71,46V56A9,9 0 0,1 62,65H43L32,74L34,65A9,9 0 0,1 28,56V46A9,9 0 0,1 37,37Z"/><path d="M38,51L45.5,58L60,43.5" fill="none" stroke="#0F7B43" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M76.3,45.5A8,8 0 0,1 76.3,56.5M80.6,41.2A14,14 0 0,1 80.6,60.8" fill="none" stroke="#F7C341" stroke-width="4.2" stroke-linecap="round"/></svg>
 YaLlegó
@@ -61,4 +70,36 @@ YaLlegó
 <a class="boton linea" href="https://wa.me/51921773497?text=Hola%2C%20quiero%20informaci%C3%B3n%20de%20YaLleg%C3%B3">Escríbenos por WhatsApp</a>
 
 <footer>YaLlegó es un producto de Mali Logistic EIRL (Perú). No está afiliado a Yape, a Plin ni al BCP.</footer>
-</main></body></html>
+</main>
+<script>
+(function () {
+  var ua = navigator.userAgent || '';
+  if (!/Android/i.test(ua)) return;
+  var apps = [[/musical_ly|Bytedance|TikTok|trill_/i, 'TikTok'], [/FBAN|FBAV|FB_IAB|FBIOS/i, 'Facebook'],
+    [/Instagram/i, 'Instagram'], [/Snapchat/i, 'Snapchat'], [/\bLine\//i, 'LINE'], [/; wv\)/, 'otra app']];
+  var nombre = null;
+  for (var i = 0; i < apps.length; i++) if (apps[i][0].test(ua)) { nombre = apps[i][1]; break; }
+  if (!nombre) return;
+
+  var url = 'https://manoly24096.github.io/yapevoz-descargas/';
+  var aviso = document.getElementById('dentro-app');
+  document.getElementById('app-nombre').textContent = nombre;
+  document.getElementById('abrir-chrome').href = 'intent://manoly24096.github.io/yapevoz-descargas/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
+  aviso.hidden = false;
+
+  var copiar = document.getElementById('copiar-enlace');
+  copiar.addEventListener('click', function () {
+    var listo = function () { copiar.textContent = 'Enlace copiado ✓'; };
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(listo, function () { prompt('Copia este enlace:', url); });
+    else prompt('Copia este enlace:', url);
+  });
+
+  // Los botones de descarga llevan al aviso en vez de fallar en silencio.
+  var botones = document.querySelectorAll('a[href$="YaLlego.apk"]');
+  for (var j = 0; j < botones.length; j++) botones[j].addEventListener('click', function (e) {
+    e.preventDefault();
+    aviso.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+})();
+</script>
+</body></html>

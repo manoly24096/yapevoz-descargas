@@ -55,3 +55,12 @@ header p{margin:6px 0 0}
 .confianza p:last-child{margin:0}
 
 @media (min-width:640px){.puntos{grid-template-columns:repeat(3,1fr)}main{padding-top:32px}}
+
+/* Aviso: la página se abrió dentro de TikTok, Facebook, etc. (ahí no se puede descargar el APK) */
+.dentro-app{background:var(--hero);color:var(--tinta);border-radius:20px;padding:20px;margin:0 0 20px}
+.dentro-app h2{margin:0 0 8px;font-size:24px}
+.dentro-app p{margin:0 0 14px}
+.dentro-app .boton.grande{background:var(--noche);color:var(--superficie)}
+.dentro-app .boton.linea{display:flex;width:100%;margin:12px 0 0;font:inherit;font-weight:700;cursor:pointer;border-color:var(--tinta)}
+.dentro-app .nota{color:var(--tinta);font-size:17px;margin:14px 0 0}
+.dentro-app[hidden]{display:none}
