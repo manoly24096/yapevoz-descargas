@@ -38,6 +38,7 @@ YaLlegó
 <p>YaLlegó dice en voz alta cada pago por Yape o Plin que llega a tu negocio. Así una captura falsa ya no te engaña.</p>
 <a class="boton grande" href="https://github.com/manoly24096/yapevoz-descargas/releases/latest/download/YaLlego.apk">Descargar para Android</a>
 <p class="nota">Para celulares con Android 8 o más nuevo.</p>
+<p class="nota" id="desde-app" hidden><a href="#dentro-app" id="ver-ayuda">¿Lo abriste desde TikTok, Facebook o Instagram? Toca aquí</a></p>
 </section>
 
 <div class="voz">
@@ -95,6 +96,17 @@ YaLlegó
   });
   function mostrar() { aviso.hidden = false; aviso.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 
+  // 0) Enlace fijo bajo el botón (siempre en Android): no depende de reconocer el navegador.
+  var desde = document.getElementById('desde-app');
+  desde.hidden = false;
+  function generico(t, extra) {
+    titulo.textContent = t;
+    texto.textContent = 'Desde TikTok, Facebook o Instagram Android no deja descargar YaLlegó. Ábrelo en Chrome y toca Descargar ahí.' + (extra || '');
+  }
+  document.getElementById('ver-ayuda').addEventListener('click', function (e) {
+    e.preventDefault(); desde.hidden = true; generico('Ábrelo en Chrome para descargar'); mostrar();
+  });
+
   // 1) Navegador dentro de una app conocida: se avisa desde el inicio y Descargar lleva al aviso.
   var apps = [[/musical_ly|Bytedance|TikTok|trill_|aweme/i, 'TikTok'], [/FBAN|FBAV|FB_IAB|FBIOS/i, 'Facebook'],
     [/Instagram/i, 'Instagram'], [/Snapchat/i, 'Snapchat'], [/\bLine\//i, 'LINE'], [/; wv\)/, 'otra app']];
@@ -103,6 +115,7 @@ YaLlegó
   var botones = document.querySelectorAll('a[href$="YaLlego.apk"]');
   if (nombre) {
     document.getElementById('app-nombre').textContent = nombre;
+    desde.hidden = true;
     aviso.hidden = false;
     for (var j = 0; j < botones.length; j++) botones[j].addEventListener('click', function (e) { e.preventDefault(); mostrar(); });
     return;
@@ -113,8 +126,8 @@ YaLlegó
   for (var k = 0; k < botones.length; k++) botones[k].addEventListener('click', function () {
     setTimeout(function () {
       if (document.visibilityState !== 'visible' || !aviso.hidden) return;
-      titulo.textContent = '¿No empezó la descarga?';
-      texto.innerHTML = 'Si estás dentro de TikTok, Facebook o Instagram, ábrelo en Chrome: desde esas apps Android no deja descargar YaLlegó. Si la descarga sí empezó, ignora este aviso.';
+      generico('¿No empezó la descarga?', ' Si la descarga sí empezó, ignora este aviso.');
+      desde.hidden = true;
       mostrar();
     }, 4000);
   });
