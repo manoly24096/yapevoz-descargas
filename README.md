@@ -1,4 +1,4 @@
-# YaLlegó · descargas
+# AvisaPago · descargas
 
 Instalador de la app (en *Releases*) y páginas públicas: https://manoly24096.github.io/yapevoz-descargas/
 
